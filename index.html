@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>Weather Display</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;600;700&display=swap?v=q3p8r2" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css?v=q3p8r2">
+</head>
+<body>
+
+  <!-- Animated sky background layers -->
+  <div class="sky-bg" id="skyBg">
+    <div class="stars" id="stars"></div>
+    <div class="clouds-layer" id="cloudsLayer"></div>
+    <div class="rain-layer" id="rainLayer"></div>
+    <div class="snow-layer" id="snowLayer"></div>
+    <div class="lightning-layer" id="lightningLayer"></div>
+  </div>
+
+  <div class="card" id="card">
+
+    <!-- Location -->
+    <div class="location-row" id="locationRow">
+      <svg class="pin-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
+        <circle cx="12" cy="9" r="2.5"/>
+      </svg>
+      <span class="location-text" id="locationText">Locating…</span>
+    </div>
+
+    <!-- Date & Time -->
+    <div class="datetime-block">
+      <div class="time" id="timeDisplay">--:--</div>
+      <div class="date" id="dateDisplay">---</div>
+    </div>
+
+    <!-- Weather icon -->
+    <div class="icon-wrap" id="iconWrap">
+      <div class="weather-icon" id="weatherIcon">
+        <div class="icon-spinner"></div>
+      </div>
+    </div>
+
+    <!-- Temperature -->
+    <div class="temp-block">
+      <span class="temp-value" id="tempValue">--</span>
+      <span class="temp-unit" id="tempUnit">°C</span>
+    </div>
+
+    <!-- Condition label -->
+    <div class="condition" id="condition">Fetching weather…</div>
+
+    <!-- Detail pills -->
+    <div class="details-row" id="detailsRow">
+      <div class="detail-pill" id="humidityPill">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 2C6 9 4 13 4 16a8 8 0 0016 0c0-3-2-7-8-14z"/>
+        </svg>
+        <span id="humidityVal">--</span>
+        <span>Humidity</span>
+      </div>
+      <div class="detail-pill" id="windPill">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M17.7 7.7a2.5 2.5 0 111.8 4.3H2"/>
+          <path d="M9.6 4.6A2 2 0 1111 8H2"/>
+          <path d="M12.6 19.4A2 2 0 1014 16H2"/>
+        </svg>
+        <span id="windVal">--</span>
+        <span>Wind</span>
+      </div>
+      <div class="detail-pill" id="feelsPill">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M14 14.76V3.5a2.5 2.5 0 00-5 0v11.26a4.5 4.5 0 105 0z"/>
+        </svg>
+        <span id="feelsVal">--</span>
+        <span>Feels like</span>
+      </div>
+    </div>
+
+    <div class="update-time" id="updateTime">Updating…</div>
+  </div>
+
+  <script src="app.js?v=q3p8r2"></script>
+</body>
+</html>

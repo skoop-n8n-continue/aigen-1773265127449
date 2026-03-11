@@ -1,0 +1,352 @@
+/* =====================================================
+   WEATHER DISPLAY — Digital Signage
+   ===================================================== */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --primary: #00b7af;
+  --dark: #10181f;
+  --card-bg: rgba(255,255,255,0.12);
+  --card-border: rgba(255,255,255,0.22);
+  --text-main: #ffffff;
+  --text-sub: rgba(255,255,255,0.7);
+  --shadow: 0 8px 60px rgba(0,0,0,0.35);
+  --transition: 1.2s cubic-bezier(0.4,0,0.2,1);
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+/* ---- SKY BACKGROUND ---- */
+.sky-bg {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(160deg, #0f2c56 0%, #1a4c8c 45%, #1e6ab4 100%);
+  transition: background var(--transition);
+  overflow: hidden;
+  z-index: 0;
+}
+
+/* Theme variants */
+.sky-bg.clear-day   { background: linear-gradient(160deg, #1a6ec9 0%, #3ba3f5 55%, #89d4ff 100%); }
+.sky-bg.clear-night { background: linear-gradient(160deg, #040e1f 0%, #0a1e3a 50%, #0f2c56 100%); }
+.sky-bg.cloudy      { background: linear-gradient(160deg, #3a4d63 0%, #5a7085 55%, #8fa9c0 100%); }
+.sky-bg.rainy       { background: linear-gradient(160deg, #1c2e3a 0%, #253d4e 50%, #364f63 100%); }
+.sky-bg.snowy       { background: linear-gradient(160deg, #2d3e55 0%, #4a6070 50%, #6e8b9c 100%); }
+.sky-bg.stormy      { background: linear-gradient(160deg, #0d0f1a 0%, #1a1d30 50%, #252945 100%); }
+.sky-bg.foggy       { background: linear-gradient(160deg, #2e3f52 0%, #4a5e6e 55%, #7a9099 100%); }
+.sky-bg.sunrise     { background: linear-gradient(160deg, #3d1f00 0%, #c45b00 40%, #f4a32a 70%, #f9d77a 100%); }
+.sky-bg.sunset      { background: linear-gradient(160deg, #150515 0%, #7a1b3a 35%, #d94f1e 65%, #f5a64a 100%); }
+
+/* ---- STARS ---- */
+.stars {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 1.5s ease;
+}
+.stars.visible { opacity: 1; }
+
+.star {
+  position: absolute;
+  background: #fff;
+  border-radius: 50%;
+  animation: twinkle var(--dur, 3s) ease-in-out infinite var(--delay, 0s);
+}
+@keyframes twinkle {
+  0%, 100% { opacity: 0.2; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.4); }
+}
+
+/* ---- CLOUDS ---- */
+.clouds-layer {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 1.5s ease;
+}
+.clouds-layer.visible { opacity: 1; }
+
+.cloud {
+  position: absolute;
+  border-radius: 50px;
+  background: rgba(255,255,255,0.18);
+  backdrop-filter: blur(4px);
+  animation: driftCloud var(--dur, 60s) linear infinite;
+}
+.cloud::before, .cloud::after {
+  content: '';
+  position: absolute;
+  background: inherit;
+  border-radius: 50%;
+}
+.cloud::before {
+  width: 60%;
+  height: 140%;
+  top: -50%;
+  left: 15%;
+}
+.cloud::after {
+  width: 40%;
+  height: 120%;
+  top: -35%;
+  right: 15%;
+}
+@keyframes driftCloud {
+  from { transform: translateX(-120%); }
+  to   { transform: translateX(110vw); }
+}
+
+/* ---- RAIN ---- */
+.rain-layer {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 1.5s ease;
+  overflow: hidden;
+}
+.rain-layer.visible { opacity: 1; }
+
+.raindrop {
+  position: absolute;
+  top: -20px;
+  width: 1.5px;
+  border-radius: 2px;
+  background: linear-gradient(to bottom, transparent, rgba(180,220,255,0.7));
+  animation: fall var(--dur, 0.9s) linear infinite var(--delay, 0s);
+}
+@keyframes fall {
+  to { transform: translateY(110vh) translateX(20px); }
+}
+
+/* ---- SNOW ---- */
+.snow-layer {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 1.5s ease;
+}
+.snow-layer.visible { opacity: 1; }
+
+.snowflake {
+  position: absolute;
+  background: rgba(255,255,255,0.8);
+  border-radius: 50%;
+  animation: snowfall var(--dur, 6s) linear infinite var(--delay, 0s);
+}
+@keyframes snowfall {
+  0% { transform: translateY(-20px) translateX(0); opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 0.8; }
+  100% { transform: translateY(110vh) translateX(var(--drift, 30px)); opacity: 0; }
+}
+
+/* ---- LIGHTNING ---- */
+.lightning-layer {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  background: rgba(200,210,255,0.0);
+  pointer-events: none;
+}
+.lightning-layer.flash {
+  animation: lightningFlash 0.3s ease-out;
+}
+@keyframes lightningFlash {
+  0% { opacity: 0; background: rgba(200,210,255,0.0); }
+  10% { opacity: 1; background: rgba(200,210,255,0.35); }
+  20% { opacity: 0; }
+  35% { opacity: 1; background: rgba(200,210,255,0.2); }
+  100% { opacity: 0; background: rgba(200,210,255,0.0); }
+}
+
+/* ---- CARD ---- */
+.card {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  width: 100%;
+  padding: clamp(1rem, 4vw, 3rem);
+  gap: clamp(0.4rem, 1.5vh, 1.2rem);
+}
+
+/* ---- LOCATION ---- */
+.location-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  opacity: 0.85;
+}
+.pin-icon {
+  width: clamp(14px, 2vw, 20px);
+  height: clamp(14px, 2vw, 20px);
+  color: var(--primary);
+  flex-shrink: 0;
+}
+.location-text {
+  font-size: clamp(0.75rem, 1.8vw, 1.1rem);
+  font-weight: 300;
+  color: var(--text-main);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+/* ---- DATE/TIME ---- */
+.datetime-block {
+  text-align: center;
+  line-height: 1;
+}
+.time {
+  font-size: clamp(2.5rem, 9vw, 7rem);
+  font-weight: 200;
+  color: var(--text-main);
+  letter-spacing: -0.02em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.date {
+  font-size: clamp(0.9rem, 2.2vw, 1.5rem);
+  font-weight: 300;
+  color: var(--text-sub);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-top: 0.3em;
+}
+
+/* ---- WEATHER ICON ---- */
+.icon-wrap {
+  margin: clamp(0.2rem, 1vh, 0.8rem) 0;
+}
+.weather-icon {
+  width: clamp(80px, 16vw, 160px);
+  height: clamp(80px, 16vw, 160px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  filter: drop-shadow(0 4px 24px rgba(0,183,175,0.4));
+  animation: floatIcon 4s ease-in-out infinite;
+}
+@keyframes floatIcon {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+.weather-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* Spinner while loading */
+.icon-spinner {
+  width: 50%;
+  height: 50%;
+  border: 3px solid rgba(255,255,255,0.15);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 0.9s linear infinite;
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ---- TEMPERATURE ---- */
+.temp-block {
+  display: flex;
+  align-items: flex-start;
+  line-height: 1;
+}
+.temp-value {
+  font-size: clamp(4rem, 16vw, 12rem);
+  font-weight: 700;
+  color: var(--text-main);
+  letter-spacing: -0.04em;
+  line-height: 0.9;
+}
+.temp-unit {
+  font-size: clamp(1.5rem, 4vw, 3.5rem);
+  font-weight: 300;
+  color: var(--primary);
+  margin-top: 0.15em;
+  margin-left: 0.1em;
+}
+
+/* ---- CONDITION ---- */
+.condition {
+  font-size: clamp(1rem, 2.8vw, 2rem);
+  font-weight: 300;
+  color: var(--text-main);
+  letter-spacing: 0.06em;
+  text-align: center;
+  opacity: 0.9;
+}
+
+/* ---- DETAIL PILLS ---- */
+.details-row {
+  display: flex;
+  gap: clamp(0.6rem, 2vw, 1.5rem);
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: clamp(0.2rem, 0.8vh, 0.6rem);
+}
+.detail-pill {
+  display: flex;
+  align-items: center;
+  gap: 0.4em;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  backdrop-filter: blur(12px);
+  border-radius: 50px;
+  padding: 0.45em 1em;
+  font-size: clamp(0.7rem, 1.5vw, 1rem);
+  color: var(--text-main);
+  font-weight: 400;
+}
+.detail-pill svg {
+  width: 1em;
+  height: 1em;
+  color: var(--primary);
+  flex-shrink: 0;
+}
+.detail-pill span:last-child {
+  color: var(--text-sub);
+  font-size: 0.85em;
+  margin-left: 0.15em;
+}
+
+/* ---- UPDATE TIME ---- */
+.update-time {
+  font-size: clamp(0.55rem, 1.1vw, 0.8rem);
+  color: rgba(255,255,255,0.35);
+  letter-spacing: 0.05em;
+  margin-top: 0.2rem;
+}
+
+/* ---- GLASS CARD (optional on some themes) ---- */
+@media (min-width: 600px) {
+  .card {
+    max-width: 700px;
+    margin: 0 auto;
+  }
+}
+
+/* ---- ERROR STATE ---- */
+.error-msg {
+  color: rgba(255,200,200,0.85);
+  font-size: clamp(0.75rem, 1.5vw, 1rem);
+  text-align: center;
+  max-width: 340px;
+  line-height: 1.5;
+}
