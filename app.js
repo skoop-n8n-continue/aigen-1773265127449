@@ -164,10 +164,6 @@ const dateDisplay  = document.getElementById('dateDisplay');
 const weatherIcon  = document.getElementById('weatherIcon');
 const tempValue    = document.getElementById('tempValue');
 const condition    = document.getElementById('condition');
-const humidityVal  = document.getElementById('humidityVal');
-const windVal      = document.getElementById('windVal');
-const feelsVal     = document.getElementById('feelsVal');
-const updateTime   = document.getElementById('updateTime');
 
 // ──────────────────────────────────────────────────────
 // Clock
@@ -386,17 +382,8 @@ function renderWeather(data, cityName) {
   // Condition
   condition.textContent = info.label;
 
-  // Details
-  humidityVal.textContent = `${cur.relative_humidity_2m}%`;
-  windVal.textContent     = `${Math.round(cur.wind_speed_10m)} km/h`;
-  feelsVal.textContent    = `${Math.round(cur.apparent_temperature)}°`;
-
   // Location
   if (cityName) locationText.textContent = cityName;
-
-  // Update timestamp
-  const now = new Date();
-  updateTime.textContent = `Updated ${now.toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' })}`;
 
   // Apply sky theme
   applyTheme(code, isDay);

@@ -293,47 +293,6 @@ html, body {
   opacity: 0.9;
 }
 
-/* ---- DETAIL PILLS ---- */
-.details-row {
-  display: flex;
-  gap: clamp(0.6rem, 2vw, 1.5rem);
-  flex-wrap: wrap;
-  justify-content: center;
-  margin-top: clamp(0.2rem, 0.8vh, 0.6rem);
-}
-.detail-pill {
-  display: flex;
-  align-items: center;
-  gap: 0.4em;
-  background: var(--card-bg);
-  border: 1px solid var(--card-border);
-  backdrop-filter: blur(12px);
-  border-radius: 50px;
-  padding: 0.45em 1em;
-  font-size: clamp(0.7rem, 1.5vw, 1rem);
-  color: var(--text-main);
-  font-weight: 400;
-}
-.detail-pill svg {
-  width: 1em;
-  height: 1em;
-  color: var(--primary);
-  flex-shrink: 0;
-}
-.detail-pill span:last-child {
-  color: var(--text-sub);
-  font-size: 0.85em;
-  margin-left: 0.15em;
-}
-
-/* ---- UPDATE TIME ---- */
-.update-time {
-  font-size: clamp(0.55rem, 1.1vw, 0.8rem);
-  color: rgba(255,255,255,0.35);
-  letter-spacing: 0.05em;
-  margin-top: 0.2rem;
-}
-
 /* ---- GLASS CARD (optional on some themes) ---- */
 @media (min-width: 600px) {
   .card {
