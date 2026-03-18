@@ -174,28 +174,13 @@ html, body {
   position: relative;
   z-index: 10;
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   height: 100vh;
   width: 100%;
-  padding: clamp(1rem, 6vw, 5rem);
-  gap: clamp(2rem, 10vw, 8rem);
-}
-
-.left-pane, .right-pane {
-  display: flex;
-  flex-direction: column;
-}
-
-.left-pane {
-  align-items: flex-start;
-  text-align: left;
-}
-
-.right-pane {
-  align-items: center;
-  text-align: center;
+  padding: clamp(1rem, 4vw, 3rem);
+  gap: clamp(0.4rem, 1.5vh, 1.2rem);
 }
 
 /* ---- LOCATION ---- */
@@ -204,7 +189,6 @@ html, body {
   align-items: center;
   gap: 0.5rem;
   opacity: 0.85;
-  margin-bottom: 0.5rem;
 }
 .pin-icon {
   width: clamp(14px, 2vw, 20px);
@@ -222,7 +206,7 @@ html, body {
 
 /* ---- DATE/TIME ---- */
 .datetime-block {
-  text-align: left;
+  text-align: center;
   line-height: 1;
 }
 .time {
@@ -312,7 +296,7 @@ html, body {
 /* ---- GLASS CARD (optional on some themes) ---- */
 @media (min-width: 600px) {
   .card {
-    max-width: 1200px;
+    max-width: 700px;
     margin: 0 auto;
   }
 }
