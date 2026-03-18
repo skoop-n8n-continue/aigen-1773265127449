@@ -164,6 +164,7 @@ const dateDisplay  = document.getElementById('dateDisplay');
 const weatherIcon  = document.getElementById('weatherIcon');
 const tempValue    = document.getElementById('tempValue');
 const condition    = document.getElementById('condition');
+const forecastContainer = document.getElementById('forecastContainer');
 
 // ──────────────────────────────────────────────────────
 // Clock
@@ -353,6 +354,11 @@ async function fetchWeather(lat, lon) {
       'weathercode',
       'is_day',
     ].join(','),
+    daily: [
+      'weathercode',
+      'temperature_2m_max',
+      'temperature_2m_min',
+    ].join(','),
     wind_speed_unit: 'kmh',
     timezone: 'auto',
   });
@@ -387,6 +393,42 @@ function renderWeather(data, cityName) {
 
   // Apply sky theme
   applyTheme(code, isDay);
+
+  // Render Forecast (next 4 days starting tomorrow)
+  renderForecast(data.daily);
+}
+
+function renderForecast(daily) {
+  if (!daily || !daily.time) return;
+  forecastContainer.innerHTML = '';
+
+  // Skip today (index 0) and take next 4 days
+  for (let i = 1; i <= 4; i++) {
+    const time = daily.time[i];
+    const code = daily.weathercode[i];
+    const max = Math.round(daily.temperature_2m_max[i]);
+    const min = Math.round(daily.temperature_2m_min[i]);
+    const info = WMO[code] || WMO[0];
+    const iconSvg = ICONS[info.icon] || ICONS['sun'];
+
+    // Get day name
+    const date = new Date(time + 'T00:00:00');
+    const dayName = i === 1 ? 'Tomorrow' : date.toLocaleDateString('en-US', { weekday: 'short' });
+
+    const item = document.createElement('div');
+    item.className = 'forecast-item';
+    item.innerHTML = `
+      <div class="forecast-day">${dayName}</div>
+      <div class="forecast-icon">${iconSvg}</div>
+      <div class="forecast-temp">
+        <span class="forecast-temp-max">${max}°</span>
+        <span class="forecast-temp-min">${min}°</span>
+      </div>
+    `;
+    forecastContainer.appendChild(item);
+  }
+
+  forecastContainer.classList.add('loaded');
 }
 
 // ──────────────────────────────────────────────────────
@@ -395,6 +437,7 @@ function renderWeather(data, cityName) {
 function renderError(msg) {
   weatherIcon.innerHTML = `<svg viewBox="0 0 100 100" fill="none"><text y="60" x="50" text-anchor="middle" font-size="52">🌐</text></svg>`;
   condition.innerHTML   = `<span class="error-msg">${msg}</span>`;
+  forecastContainer.classList.remove('loaded');
   // Apply default clear-day theme
   applyTheme(0, true);
 }
