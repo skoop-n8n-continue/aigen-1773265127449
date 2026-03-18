@@ -422,31 +422,11 @@ async function loadWeather(lat, lon, skipGeocode = false) {
 let userLat = null, userLon = null;
 
 function init() {
-  if ('geolocation' in navigator) {
-    locationText.textContent = 'Locating…';
-    navigator.geolocation.getCurrentPosition(
-      pos => {
-        userLat = pos.coords.latitude;
-        userLon = pos.coords.longitude;
-        loadWeather(userLat, userLon);
-      },
-      err => {
-        console.warn('Geolocation denied, using fallback coordinates');
-        // Fallback: New York City
-        userLat = 40.7128;
-        userLon = -74.0060;
-        locationText.textContent = 'New York, NY';
-        loadWeather(userLat, userLon, true);
-      },
-      { timeout: 8000, maximumAge: 60000 }
-    );
-  } else {
-    // No geolocation support — fallback
-    userLat = 40.7128;
-    userLon = -74.0060;
-    locationText.textContent = 'New York, NY';
-    loadWeather(userLat, userLon, true);
-  }
+  // Hardcoded to Los Angeles for digital signage
+  userLat = 34.0522;
+  userLon = -118.2437;
+  locationText.textContent = 'Los Angeles, CA';
+  loadWeather(userLat, userLon, true);
 }
 
 // ──────────────────────────────────────────────────────
