@@ -1,29 +1,11 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <link rel="manifest" href="./manifest.json">
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-  <meta http-equiv="Pragma" content="no-cache">
-  <meta http-equiv="Expires" content="0">
-  <title>Weather Display</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;600;700&display=swap&v=v4nisv" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=v4nisv">
-</head>
-<body>
+const fs = require('fs');
+let html = fs.readFileSync('index.html', 'utf8');
 
-  <!-- Animated sky background layers -->
-  <div class="sky-bg" id="skyBg">
-    <div class="stars" id="stars"></div>
-    <div class="clouds-layer" id="cloudsLayer"></div>
-    <div class="rain-layer" id="rainLayer"></div>
-    <div class="snow-layer" id="snowLayer"></div>
-    <div class="lightning-layer" id="lightningLayer"></div>
+// Replace the inner contents of <div class="card" id="card">
+const cardStart = html.indexOf('<div class="card" id="card">');
+const cardEnd = html.indexOf('</div>', html.indexOf('<div class="condition" id="condition">')) + 6;
 
-  <div class="card" id="card">
+const newCardContent = `<div class="card" id="card">
     <div class="left-panel">
       <!-- Location -->
       <div class="location-row" id="locationRow">
@@ -58,8 +40,13 @@
       <!-- Condition label -->
       <div class="condition" id="condition">Fetching weather…</div>
     </div>
-  </div>
+  </div>`;
 
-  <script src="app.js?v=v4nisv"></script>
-</body>
-</html>
+html = html.substring(0, cardStart) + newCardContent + html.substring(cardEnd);
+
+// Generate new cache version
+const v = Math.random().toString(36).substring(2, 8);
+html = html.replace(/\?v=[a-z0-9]+/g, '?v=' + v);
+
+fs.writeFileSync('index.html', html);
+console.log("updated index.html");
