@@ -326,16 +326,20 @@ function stopLightning() {
 }
 
 // ──────────────────────────────────────────────────────
-// Reverse geocode (nominatim)
+// IP Geolocation
 // ──────────────────────────────────────────────────────
-async function getCityName(lat, lon) {
+async function fetchIpLocation() {
   try {
-    const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`;
-    const res = await fetch(url, { cache: 'no-store' });
+    const res = await fetch(`https://ipwho.is/?_nocache=${Date.now()}`, { cache: 'no-store' });
     const data = await res.json();
-    const addr = data.address || {};
-    return addr.city || addr.town || addr.village || addr.county || addr.state || 'Unknown';
-  } catch { return null; }
+    if (data.success) {
+      return { lat: data.latitude, lon: data.longitude, city: data.city };
+    }
+    throw new Error('IP geolocation failed');
+  } catch (err) {
+    console.warn('IP geolocation failed, using fallback coordinates', err);
+    return { lat: 40.7128, lon: -74.0060, city: 'New York, NY' }; // Fallback
+  }
 }
 
 // ──────────────────────────────────────────────────────
@@ -355,6 +359,7 @@ async function fetchWeather(lat, lon) {
     ].join(','),
     wind_speed_unit: 'kmh',
     timezone: 'auto',
+    _nocache: Date.now() // Bypass service worker cache
   });
 
   const url = `https://api.open-meteo.com/v1/forecast?${params}`;
@@ -402,13 +407,10 @@ function renderError(msg) {
 // ──────────────────────────────────────────────────────
 // Main load function
 // ──────────────────────────────────────────────────────
-async function loadWeather(lat, lon, skipGeocode = false) {
+async function loadWeather(lat, lon, cityName) {
   try {
-    const [weatherData, city] = await Promise.all([
-      fetchWeather(lat, lon),
-      skipGeocode ? Promise.resolve(null) : getCityName(lat, lon),
-    ]);
-    renderWeather(weatherData, city);
+    const weatherData = await fetchWeather(lat, lon);
+    renderWeather(weatherData, cityName);
   } catch (err) {
     console.error('Weather fetch failed:', err);
     renderError('Unable to load weather data. Retrying…');
@@ -419,41 +421,22 @@ async function loadWeather(lat, lon, skipGeocode = false) {
 // ──────────────────────────────────────────────────────
 // Geolocation → weather
 // ──────────────────────────────────────────────────────
-let userLat = null, userLon = null;
+let userLat = null, userLon = null, userCity = null;
 
-function init() {
-  if ('geolocation' in navigator) {
-    locationText.textContent = 'Locating…';
-    navigator.geolocation.getCurrentPosition(
-      pos => {
-        userLat = pos.coords.latitude;
-        userLon = pos.coords.longitude;
-        loadWeather(userLat, userLon);
-      },
-      err => {
-        console.warn('Geolocation denied, using fallback coordinates');
-        // Fallback: New York City
-        userLat = 40.7128;
-        userLon = -74.0060;
-        locationText.textContent = 'New York, NY';
-        loadWeather(userLat, userLon, true);
-      },
-      { timeout: 8000, maximumAge: 60000 }
-    );
-  } else {
-    // No geolocation support — fallback
-    userLat = 40.7128;
-    userLon = -74.0060;
-    locationText.textContent = 'New York, NY';
-    loadWeather(userLat, userLon, true);
-  }
+async function init() {
+  locationText.textContent = 'Locating…';
+  const loc = await fetchIpLocation();
+  userLat = loc.lat;
+  userLon = loc.lon;
+  userCity = loc.city;
+  loadWeather(userLat, userLon, userCity);
 }
 
 // ──────────────────────────────────────────────────────
 // Auto-refresh every 10 minutes
 // ──────────────────────────────────────────────────────
 setInterval(() => {
-  if (userLat !== null) loadWeather(userLat, userLon, true);
+  if (userLat !== null) loadWeather(userLat, userLon, userCity);
 }, 10 * 60 * 1000);
 
 // ──────────────────────────────────────────────────────
