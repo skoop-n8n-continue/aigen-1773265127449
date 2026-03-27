@@ -162,8 +162,8 @@ const locationText = document.getElementById('locationText');
 const timeDisplay  = document.getElementById('timeDisplay');
 const dateDisplay  = document.getElementById('dateDisplay');
 const weatherIcon  = document.getElementById('weatherIcon');
-const tempValue    = document.getElementById('tempValue');
 const condition    = document.getElementById('condition');
+const forecastRow  = document.getElementById('forecastRow');
 
 // ──────────────────────────────────────────────────────
 // Clock
@@ -353,6 +353,11 @@ async function fetchWeather(lat, lon) {
       'weathercode',
       'is_day',
     ].join(','),
+    daily: [
+      'weathercode',
+      'temperature_2m_max',
+      'temperature_2m_min',
+    ].join(','),
     wind_speed_unit: 'kmh',
     timezone: 'auto',
   });
@@ -376,17 +381,48 @@ function renderWeather(data, cityName) {
   const iconSvg = ICONS[info.icon] || ICONS['sun'];
   weatherIcon.innerHTML = iconSvg;
 
-  // Temp
-  tempValue.textContent = Math.round(cur.temperature_2m);
-
   // Condition
   condition.textContent = info.label;
 
   // Location
   if (cityName) locationText.textContent = cityName;
 
+  // Forecast
+  renderForecast(data.daily);
+
   // Apply sky theme
   applyTheme(code, isDay);
+}
+
+function renderForecast(daily) {
+  forecastRow.innerHTML = '';
+  // Show 4 days: Today + 3
+  for (let i = 0; i < 4; i++) {
+    const code = daily.weathercode[i];
+    const max  = Math.round(daily.temperature_2m_max[i]);
+    const min  = Math.round(daily.temperature_2m_min[i]);
+    const info = WMO[code] || WMO[0];
+    const icon = ICONS[info.icon] || ICONS['sun'];
+
+    const dayName = i === 0 ? 'Today' : getShortDayName(daily.time[i]);
+
+    const item = document.createElement('div');
+    item.className = 'forecast-item';
+    item.innerHTML = `
+      <div class="forecast-day">${dayName}</div>
+      <div class="forecast-icon">${icon}</div>
+      <div class="forecast-temps">
+        <span class="forecast-max">${max}°</span>
+        <span class="forecast-min">${min}°</span>
+      </div>
+    `;
+    forecastRow.appendChild(item);
+  }
+}
+
+function getShortDayName(dateStr) {
+  const date = new Date(dateStr + 'T00:00:00');
+  return date.toLocaleDateString('en-US', { weekday: 'short' });
 }
 
 // ──────────────────────────────────────────────────────

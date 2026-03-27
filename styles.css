@@ -174,32 +174,13 @@ html, body {
   position: relative;
   z-index: 10;
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   height: 100vh;
   width: 100%;
-  padding: clamp(2rem, 6vw, 5rem);
-  gap: clamp(4rem, 20vw, 25rem);
-  max-width: 1800px;
-  margin: 0 auto;
-}
-
-.left-panel, .right-panel {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: clamp(0.5rem, 2vh, 1.5rem);
-}
-
-.left-panel {
-  align-items: flex-start;
-  text-align: left;
-}
-
-.right-panel {
-  align-items: flex-end;
-  text-align: right;
+  padding: clamp(1rem, 4vw, 3rem);
+  gap: clamp(0.4rem, 1.5vh, 1.2rem);
 }
 
 /* ---- LOCATION ---- */
@@ -225,7 +206,7 @@ html, body {
 
 /* ---- DATE/TIME ---- */
 .datetime-block {
-  text-align: left;
+  text-align: center;
   line-height: 1;
 }
 .time {
@@ -308,8 +289,73 @@ html, body {
   font-weight: 300;
   color: var(--text-main);
   letter-spacing: 0.06em;
-  text-align: right;
+  text-align: center;
   opacity: 0.9;
+}
+
+/* ---- FORECAST ---- */
+.forecast-row {
+  display: flex;
+  justify-content: space-around;
+  width: 100%;
+  max-width: 800px;
+  margin-top: clamp(0.5rem, 2vh, 2rem);
+  gap: 1rem;
+  padding: 0 1rem;
+}
+
+.forecast-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  padding: clamp(0.6rem, 1.5vw, 1.2rem);
+  background: rgba(255,255,255,0.06);
+  border-radius: 1.5rem;
+  border: 1px solid rgba(255,255,255,0.1);
+  backdrop-filter: blur(8px);
+  transition: transform 0.3s ease;
+}
+
+.forecast-day {
+  font-size: clamp(0.7rem, 1.5vw, 1.1rem);
+  font-weight: 600;
+  color: var(--text-sub);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 0.5rem;
+}
+
+.forecast-icon {
+  width: clamp(40px, 6vw, 70px);
+  height: clamp(40px, 6vw, 70px);
+  margin-bottom: 0.5rem;
+}
+
+.forecast-temps {
+  display: flex;
+  gap: 0.6rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.forecast-max {
+  font-size: clamp(1rem, 2.2vw, 1.6rem);
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.forecast-min {
+  font-size: clamp(1rem, 2.2vw, 1.6rem);
+  font-weight: 300;
+  color: var(--text-sub);
+}
+
+/* ---- GLASS CARD (optional on some themes) ---- */
+@media (min-width: 600px) {
+  .card {
+    max-width: 700px;
+    margin: 0 auto;
+  }
 }
 
 /* ---- ERROR STATE ---- */
